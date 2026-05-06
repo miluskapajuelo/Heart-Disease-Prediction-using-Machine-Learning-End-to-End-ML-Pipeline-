@@ -1,0 +1,94 @@
+# All hardcoded values live here. src/utils/config.py
+# ---------------------------------------------------------
+
+paths:
+  raw_data = "data/raw/heart.csv"
+  processed_dir = "data/processed"
+  models_dir = "models/"
+
+# ---------------------------------------------------------
+# Data split
+# ---------------------------------------------------------
+
+split:
+  test_size: 0.20     #20% test
+  val_size : 0.25     #25% validation
+  random_state: 42
+  target_column : "target"
+
+# ---------------------------------------------------------
+# Preprocessing
+# ---------------------------------------------------------
+
+Preprocessing:
+  zero_as_nan_col:
+  - "chol"
+  - "trestbps"
+  - "thalach"
+  imputer_strategy: "median"
+
+# ---------------------------------------------------------
+# Feature engineering
+# ---------------------------------------------------------
+
+Features:
+  engineering_inputs:
+    - "oldpeak"
+    - "thalach"
+    - "age"
+    - "trestbps"
+    - "chol"
+    - "exang"
+    - "ca"
+
+  selected:
+    - "isquemia_score"
+    - "troponin_index"
+    - "cardiac_capacity"
+    - "est_stroke_volume"
+    - "cp"
+    - "thalach"
+    - "thal"
+    - "sex"
+
+# ---------------------------------------------------------
+# Models
+# ---------------------------------------------------------
+
+models:
+  logistic_regression:
+    needs_scaling: true
+    grid:
+      c: [0.01, 0.1, 1.0, 10.0]
+
+  random_forest:
+    needs_scaling: false
+    grid:
+      n_estimators: [100, 200, 300]
+      max_deph: [5, 10, null]
+      min_samples_split: [2,5]
+
+  xgboost:
+    needs_scaling: false
+    grid:
+      n_estimators: [50, 100, 200]
+      max_deph: [2,3,4]
+      learning_rate: [0.05, 0.1, 0.2]
+      subsample: [0.8, 1.0]
+
+# ---------------------------------------------------------
+# Training
+# ---------------------------------------------------------
+
+training:
+  cv_folds: 5
+  scoring: "roc_auc"
+  n_jobs: -1
+
+# ---------------------------------------------------------
+# Evaluation
+# ---------------------------------------------------------
+
+evaluation:
+   overfitting_threshold: 0.05
+   decision_threshold:    0.5
