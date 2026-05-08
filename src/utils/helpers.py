@@ -101,4 +101,5 @@ def check_duplicates(df):
     if total == 0:
         print("there is not null values")
     else:
+        total
         print(f"total: {total}")

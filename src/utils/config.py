@@ -5,7 +5,7 @@ import yaml
 # works regarless of where the script is run from
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-_config_path = PROJECT_ROOT / "configs" / "model_config_yaml"
+_config_path = PROJECT_ROOT / "configs" / "model_config.yaml"
 
 with open(_config_path, "r") as f:
     CFG: dict = yaml.safe_load(f)
