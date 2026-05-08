@@ -20,7 +20,7 @@ split:
 # Preprocessing
 # ---------------------------------------------------------
 
-Preprocessing:
+preprocessing:
   zero_as_nan_col:
   - "chol"
   - "trestbps"
@@ -31,7 +31,7 @@ Preprocessing:
 # Feature engineering
 # ---------------------------------------------------------
 
-Features:
+features:
   engineering_inputs:
     - "oldpeak"
     - "thalach"
