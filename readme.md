@@ -83,8 +83,10 @@ This is a **binary classification problem**.
 │       └── helpers.py
 │
 ├── models/
-│   ├── best_model.pkl
-│   └── preprocessor.pkl
+│   ├── logistic_regression.pkl
+│   ├── random_forest.pkl
+│   ├── xgboost.pkl         
+│   └── preprocessor.pkl  
 │
 │
 ├── tests/
