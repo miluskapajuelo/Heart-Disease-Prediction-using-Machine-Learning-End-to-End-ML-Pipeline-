@@ -5,6 +5,7 @@ from src.utils.helpers import check_duplicates
 
 
 
+
 def load_data() -> pd.DataFrame:
     """
     Load a dataset from the heart disease CSV file.
@@ -30,7 +31,6 @@ def load_data() -> pd.DataFrame:
         raise ValueError(
             f"File loaded but contains no rows {path}"
         )
-
     return df
 
 
@@ -51,6 +51,6 @@ def drop_duplicated(df: pd.DataFrame) -> pd.DataFrame:
    
     duplicates = check_duplicates(df)
     if duplicates:
-        df.drop_duplicates()
+        df = df.drop_duplicates()
         return df
 
