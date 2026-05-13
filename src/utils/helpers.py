@@ -103,3 +103,21 @@ def check_duplicates(df):
     else:
         total
         print(f"total: {total}")
+
+
+def save_figure(fig, path, dpi=150):
+    """
+    save a matplotlib figure to disck and close it to free memory.
+
+    Args:
+        fig: 
+        path:
+        dpi=150
+    Returns: 
+        None
+    """
+
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=dpi, bbox_inches="tight")
+    print(f"figure saves in {path}")
