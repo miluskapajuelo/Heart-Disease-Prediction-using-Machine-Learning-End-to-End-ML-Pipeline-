@@ -6,3 +6,4 @@ seaborn==0.13.2
 xgboost>=2.0.0
 shap>=0.45.0
 PyYAML
+pytest
