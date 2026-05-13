@@ -11,7 +11,7 @@ IMPUTER_STRATEGY = CFG["preprocessing"]["imputer_strategy"]
 ENGINEERING_FEATURES = CFG["features"]["engineering_inputs"]
 
 def replace_zero_with_nan(
-        df:pd.Dataframe,
+        df:pd.DataFrame,
         columns: list[str] = ZERO_AS_NAN_COLS
 ) -> pd.DataFrame:
     """
@@ -61,6 +61,7 @@ def fit_imputer(
     imputer.fit(X_train_proc)
 
     # medians learned from training set
+    print(" medians learned from training set \n")
     for col, median in zip(X_train.columns, imputer.statistics_):
         print(f" {col}: {median: .2f}")
 

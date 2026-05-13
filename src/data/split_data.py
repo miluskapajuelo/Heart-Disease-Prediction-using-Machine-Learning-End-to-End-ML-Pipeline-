@@ -15,41 +15,35 @@ def split_data(df: pd.DataFrame):
         Y_train, Y-val, Y-test: Target series
     """
 
-    target = CFG["split"]["target_column"]
-    test_size = CFG["split"]["test_size"]
-    val_size = CFG["split"]["val_size"]
-    ramdom_state = CFG["split"]["random_state"]
+    target = CFG["split"]["target_column"] #target
+    test_size = CFG["split"]["test_size"] # 20%
+    val_size = CFG["split"]["val_size"] # 25%
+    random_state = CFG["split"]["random_state"] #42
 
-    X = df.drop(columns=[target])
-    Y = df[target]
+    df_no_target = df.drop(columns=[target])
+    df_target = df[target]
 
 
     # first cut: isolate test set until final evaluation
-
     X_temp, X_test, Y_temp, Y_test = train_test_split(
-        X, Y,
+        df_no_target, 
+        df_target,
         test_size= test_size,
-        stratify= Y,
-        random_state=ramdom_state
+        stratify= df_target,
+        random_state=random_state
 
     )
+
+    #X_temp : all the df without test 0.2, all the features no target
+    #Y_temp : all the df without test 0.2, just target
 
     # second cut: split remainder into train and val
-
     X_train, X_val, Y_train, Y_val = train_test_split(
-        X_temp, Y_temp,
-        test_size= val_size,
+        X_temp, 
+        Y_temp,
+        test_size= val_size, # 0.25
         stratify=Y_temp,
-        random_state= ramdom_state
+        random_state= random_state
     )
 
-    splits = {
-        "train":(X_train, Y_train),
-        "val":(X_val, Y_val),
-        "test":(X_test, Y_test),
-    }
-
-    total = sum(len(X) for X,_ in splits.values())
-
-    for name, x, y in splits.values():
-        print(f"{name}:      {x.shape[0]:>4} samples  ({y.mean():.1%} positive)")
+    return X_train, X_val, X_test, Y_train, Y_val, Y_test
