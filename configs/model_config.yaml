@@ -5,6 +5,8 @@ paths:
   raw_data: "data/raw/heart.csv"
   processed_dir: "data/processed"
   models_dir: "models/"
+  figures_dir: "figures/"
+
 
 # ---------------------------------------------------------
 # Data split
@@ -22,9 +24,9 @@ split:
 
 preprocessing:
   zero_as_nan_col:
-  - "chol"
-  - "trestbps"
-  - "thalach"
+    - "chol"
+    - "trestbps"
+    - "thalach"
   imputer_strategy: "median"
 
 # ---------------------------------------------------------
