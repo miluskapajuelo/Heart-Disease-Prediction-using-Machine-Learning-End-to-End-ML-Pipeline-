@@ -44,14 +44,12 @@ features:
     - "ca"
 
   selected:
-    - "isquemia_score"
-    - "troponin_index"
-    - "cardiac_capacity"
-    - "est_stroke_volume"
-    - "cp"
-    - "thalach"
-    - "thal"
     - "sex"
+    - "cp" 
+    - "thal"
+    - "isquemia_score"
+    - "est_stroke_volume"
+    - "slope"
 
 # ---------------------------------------------------------
 # Models
