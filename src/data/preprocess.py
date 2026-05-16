@@ -102,31 +102,106 @@ def add_engineered_features(
 
     Returns:
          X_train_fe, X_val_fe, X_test_fe: dataframes with engineered features added
-         oldpeak_max(float): compute from train
     
     """
-    oldpeak_max = X_train_imp["oldpeak"].max()
 
-    def _add_features(x, oldpeak_max):
+    def _add_features(x):
         df = x.copy()
         df['cardiac_capacity']  = df['thalach'] / df['age']
-        df['isquemia_score']    = (df['oldpeak'] / oldpeak_max) + df['exang'] + (df['ca'] / 3)
+        df['isquemia_score']    = df['oldpeak'] + df['exang'] + (df['ca'] / 3)
         df['est_stroke_volume'] = (df['trestbps'] / df['thalach']) * (df['age'] / 50)
         df['troponin_index']    = (df['oldpeak'] * 1.5) + (df['exang'] * 2) + (df['ca'] * 1.2)
 
         return df
     
-    X_train_fe = _add_features(X_train_imp, oldpeak_max)
-    X_val_fe = _add_features(X_val_imp, oldpeak_max)
-    X_test_fe = _add_features(X_test_imp, oldpeak_max)
+    X_train_fe = _add_features(X_train_imp)
+    X_val_fe = _add_features(X_val_imp)
+    X_test_fe = _add_features(X_test_imp)
+
+    return X_train_fe, X_val_fe, X_test_fe
 
 
-    features_selected = CFG["features"]["selected"]
+def corr_features_with_target(all_features, target):
+    """
+    """
+    corr_with_target = (
+        all_features.corr()[target]
+        .drop(target)
+        .abs()
+        .sort_values(ascending=True)
+    )
+    return corr_with_target
 
-    X_train_fe = X_train_fe[features_selected]
-    X_val_fe = X_val_fe[features_selected]
-    X_test_fe = X_test_fe[features_selected]
+def multicollinearity_between_functions(all_features):
+    """
+    """
+    corr_matrix = all_features.corr()
+    for i, col1 in enumerate(corr_matrix.columns):
+        for col2 in corr_matrix.columns[i+1:]:
+            r = abs(corr_matrix.loc[col1, col2])
+            if r > 0.70:
+             return col1, col2, r
 
-    return X_train_fe, X_val_fe, X_test_fe, oldpeak_max
-
-    
+def build_features(
+    X_train: pd.DataFrame,
+    X_val:   pd.DataFrame,
+    X_test:  pd.DataFrame,
+):
+    """
+    Engineer 2 composite clinical features from imputed data,
+    then select the 6 final features validated by ablation tests.
+ 
+    Features engineered:
+        isquemia_score    = oldpeak + exang + (ca / 3)
+            → Composite ischemia risk signal
+            → Note: no normalization by oldpeak_max — redundant because
+              tree models are scale-invariant and LR has StandardScaler
+ 
+        est_stroke_volume = (trestbps / thalach) * (age / 50)
+            → Proxy for heart work efficiency
+            → SHAP confirmed 15.1% importance — non-linear signal
+ 
+    Features dropped (see module docstring for full justification):
+        troponin_index, cardiac_capacity, oldpeak, thalach, age,
+        trestbps, fbs, ca, exang, chol, restecg
+ 
+    Final 6 features (validated by correlation + heatmap + VIF + ablation):
+        sex, cp, thal, isquemia_score, est_stroke_volume, slope
+ 
+    Args:
+        X_train, X_val, X_test: Imputed DataFrames from preprocess().
+ 
+    Returns:
+        X_train_fe, X_val_fe, X_test_fe : DataFrames with 6 selected features
+    """
+ 
+    def _add_features(X):
+        df = X.copy()
+        df["isquemia_score"]    = df["oldpeak"] + df["exang"] + (df["ca"] / 3)
+        df["est_stroke_volume"] = (df["trestbps"] / df["thalach"]) * (df["age"] / 50)
+        return df
+ 
+    X_train_fe = _add_features(X_train)
+    X_val_fe   = _add_features(X_val)
+    X_test_fe  = _add_features(X_test)
+ 
+    print(f"  Features before engineering : {X_train.shape[1]}")
+    print(f"  Features after engineering  : {X_train_fe.shape[1]}")
+ 
+    # ── Select only final validated feature set ───────────────────────────────
+    selected = CFG["features"]["selected"]
+    # ["sex", "cp", "thal", "isquemia_score", "est_stroke_volume", "slope"]
+ 
+    X_train_fe = X_train_fe[selected]
+    X_val_fe   = X_val_fe[selected]
+    X_test_fe  = X_test_fe[selected]
+ 
+    print(f"  Features selected for models: {selected}")
+ 
+    # ── Confirm no nulls in output ────────────────────────────────────────────
+    for name, X in [("X_train_fe", X_train_fe), ("X_val_fe", X_val_fe), ("X_test_fe", X_test_fe)]:
+        nulls = X.isnull().sum().sum()
+        status = "✔" if nulls == 0 else f"✘  {nulls} nulls!"
+        print(f"  Nulls in {name}: {status}")
+ 
+    return X_train_fe, X_val_fe, X_test_fe
