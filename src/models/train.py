@@ -41,14 +41,31 @@ def _get_base_estimator(model_name: str):
 
 
 def train_model(
-        model_name: str,
-        x_train_fe : pd.Dataframe,
-        y_train_fe : pd.Dataframe,
-        x_val_fe : pd.Dataframe,
-        y_val_fe : pd.Dataframe,
+        model_name,
+        x_train,
+        y_train,
+        x_val,
+        y_val 
 )->dict:
     """
+    Train a model with GridSearchCV and evaluate on the validation set.
+ 
+    Args:
+        model_name : "logistic_regression", "random_forest", or "xgboost"
+        X_train    : Training features (after build_features)
+        y_train    : Training target
+        X_val      : Validation features
+        y_val      : Validation target
+ 
+    Returns:
+        dict with keys:
+            model       → best fitted estimator
+            scaler      → fitted StandardScaler if LR, else None
+            best_params → winning hyperparameter combination
+            cv_score    → best CV ROC-AUC scored on training set
+            val_score   → ROC-AUC on the held-out validation set
     """
+    
     cv_folds = CFG["training"]["cv_folds"]
     scoring = CFG["training"]["scoring"]
     n_jobs = CFG["training"]["n_jobs"]
@@ -59,17 +76,17 @@ def train_model(
 
     if needs_scaling:
         scaler= StandardScaler()
-        x_train_in = scaler.fit_transform(x_train_fe)
-        x_val_in = scaler.fit_transform(x_val_fe)
+        x_train_in = scaler.fit_transform(x_train)
+        x_val_in = scaler.transform(x_val)
     else:
-        x_train_in = x_train_fe
-        x_val_in = x_train_fe
+        x_train_in = x_train
+        x_val_in = x_val
 
     
     cv_strategy = StratifiedKFold(
         n_splits=cv_folds,
         shuffle=True,
-        random_state=CFG["random_state"]
+        random_state=CFG['split']["random_state"]
     )
     
 # GridSearchCV on training set only
@@ -83,18 +100,20 @@ def train_model(
         verbose=0
     )
 
-    grid_search.fit(x_train_in, y_train_fe)
+    grid_search.fit(x_train_in, y_train)
 
     best_model = grid_search.best_estimator_
-    cv_score = grid_search.score
+    cv_score = grid_search.best_score_
     best_params = grid_search.best_params_
 
+    # Validation score
+
     y_proba = best_model.predict_proba(x_val_in)[:,1]
-    val_score = roc_auc_score(y_val_fe, y_proba)
+    val_score = roc_auc_score(y_val, y_proba)
     
-    print(f"  Best params : {best_params}")
-    print(f"  CV ROC-AUC  : {cv_score:.4f}  (train)")
-    print(f"  Val ROC-AUC : {val_score:.4f}  (validation)")
+    # print(f"  Best params : {best_params}")
+    # print(f"  CV ROC-AUC  : {cv_score:.4f}  (train)")
+    # print(f"  Val ROC-AUC : {val_score:.4f}  (validation)")
 
     return{
         "model": best_model,
