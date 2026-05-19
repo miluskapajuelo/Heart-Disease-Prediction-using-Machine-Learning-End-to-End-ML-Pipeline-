@@ -1,66 +1,108 @@
-# Heart Disease Prediction using Machine Learning
+# Heart Disease Risk Prediction with Machine Learning
 
-## Overview
-This project builds a machine learning model to predict heart disease using clinical and engineered features.
+> End-to-end machine learning project for predicting heart disease risk using clinical patient data.  
+> Built to demonstrate ML engineering practices: data validation, leakage prevention, feature engineering, model comparison, explainability, and reproducible pipelines.
 
-It demonstrates a ML pipeline:
+![Python](https://img.shields.io/badge/Python-3.9+-blue)
+![Scikit--learn](https://img.shields.io/badge/scikit--learn-ML-orange)
+![XGBoost](https://img.shields.io/badge/XGBoost-Tuned-red)
+![SHAP](https://img.shields.io/badge/SHAP-Explainability-purple)
+![ROC--AUC](https://img.shields.io/badge/ROC--AUC-0.894-green)
 
-- Exploratory Data Analysis (EDA)
-- Feature Engineering
-- Model Training & Evaluation
-- Model Comparison
-- Interpretability (SHAP)
-- Final Model Selection
+---
 
-## Problem statement
+## 1. Project Summary
 
-Predict whether a patient has heart disease:
+This project predicts whether a patient is likely to have heart disease using clinical measurements from the Kaggle/UCI Heart Disease dataset.
 
-- 0 → No disease
-- 1 → Disease
+The goal was not only to train a high-performing model, but to build a complete ML workflow that follows real-world engineering practices:
 
-This is a **binary classification problem**.
+- Clean and modular project structure
+- Train/validation/test split before preprocessing
+- Feature engineering using clinical reasoning
+- Multiple model comparison
+- Cross-validation and generalization gap analysis
+- SHAP-based explainability
+- Reusable source code and testing structure
 
-## Dataset
+---
 
-- Source: [Kaggle Heart Disease dataset](https://www.kaggle.com/datasets/johnsmith88/heart-disease-dataset)
-- ~300 patient records
-- Includes clinical variables such as:
-    - Age 
-    - Sex (0=female, 1=male) 
-    - cp (Chest pain type) (0-3 scale)
-    - thalach (Maximum heart rate): The highest heart rate archived during excercise
-    - thal (thalassemia): A blood disorder result(0-3 range)
-    - trestbps (resting blood pressure): In mmHg on admission to the hospital.
-    - chol (serum cholesterol): mg/dl
-    - oldpeak (ST depression): ST depression induced by exercise relative to rest
-    - fbs (fasting blood sugar): >120 mg/dl (1=true, 0=false)
-    - restecg (resting ECG): (0-2 range)
-    - exang (exercise-induced angina) (1=yes, 0=no)
-    - ca(number of major vessels) (0-4 range)
-    - slope: the slope of the peak exercise ST segment (0-2 range)
-    
+## 2. Business / Clinical Problem
 
+Heart disease is one of the leading causes of death worldwide. Early identification of high-risk patients can support better screening and preventive care.
 
-## Project Structure
+This project frames the task as a binary classification problem:
 
-## Project Structure
+| Target | Meaning |
+|---|---|
+| `0` | No heart disease |
+| `1` | Heart disease |
 
+Because this is a health-related prediction problem, **recall** is especially important. Missing a patient with heart disease can be more harmful than incorrectly flagging a healthy patient.
+
+---
+
+## 3. Dataset
+
+**Source:** [Kaggle Heart Disease Dataset](https://www.kaggle.com/datasets/johnsmith88/heart-disease-dataset)
+
+The dataset contains clinical variables such as:
+
+| Feature | Description |
+|---|---|
+| `age` | Patient age |
+| `sex` | Biological sex |
+| `cp` | Chest pain type |
+| `trestbps` | Resting blood pressure |
+| `chol` | Serum cholesterol |
+| `thalach` | Maximum heart rate achieved |
+| `exang` | Exercise-induced angina |
+| `oldpeak` | ST depression induced by exercise |
+| `ca` | Number of major vessels |
+| `thal` | Thalassemia result |
+| `slope` | Slope of peak exercise ST segment |
+
+---
+
+## 4. Machine Learning Workflow
+
+```text
+Raw Data
+   ↓
+Exploratory Data Analysis
+   ↓
+Train / Validation / Test Split
+   ↓
+Preprocessing
+   ↓
+Feature Engineering
+   ↓
+Model Training
+   ↓
+Model Evaluation
+   ↓
+SHAP Explainability
+   ↓
+Final Model Selection
+```
+
+---
+
+## 5. Project Structure
 
 ```text
 .
 ├── data/
-│   ├── raw/               
-│   └── processed/          
+│   ├── raw/
+│   └── processed/
 │
 ├── notebooks/
-│   ├── 01_eda.ipynb     
+│   ├── 01_eda.ipynb
 │   ├── 02_preprocessing.ipynb
 │   ├── 03_modeling.ipynb
-│   └── 04_explainability.ipynb   
+│   └── 04_explainability.ipynb
 │
 ├── src/
-│   ├── __init__.py
 │   ├── data/
 │   │   ├── load_data.py
 │   │   ├── preprocess.py
@@ -85,9 +127,8 @@ This is a **binary classification problem**.
 ├── models/
 │   ├── logistic_regression.pkl
 │   ├── random_forest.pkl
-│   ├── xgboost.pkl         
-│   └── preprocessor.pkl  
-│
+│   ├── xgboost.pkl
+│   └── preprocessor.pkl
 │
 ├── tests/
 │   ├── test_preprocess.py
@@ -99,162 +140,239 @@ This is a **binary classification problem**.
 └── .gitignore
 ```
 
+---
+
+## 6. Feature Engineering
+
+Three engineered features were created to capture clinical patterns beyond the raw dataset.
 
 
-## Tech Stack
+### Ischemia Score
 
-- Python
-- Pandas
-- Scikit-learn
-- XGBoost
-- SHAP
-- Matplotlib / Seaborn
+```python
+isquemia_score = oldpeak + exang + (ca / 3)
+```
 
-## Installation & Setup
+Combines multiple indicators of cardiac stress.
 
-This project follows a modular structure to allow easy reproducibility and scalability across environments.
+### Estimated Stroke Volume Proxy
 
-### 1. Clone the repository
+```python
+est_stroke_volume = (trestbps / thalach) * (age / 50)
+```
+
+Approximates cardiovascular efficiency under stress.
+
+These features were evaluated using Correlation analysis, Multicollinearity check, Variance inflation factor (VIF) and Ablation tests.
+
+---
+
+## 7. Models Evaluated
+
+The following models were trained and compared:
+
+| Model | Why it was included |
+|---|---|
+| Logistic Regression | Strong baseline and interpretable linear model |
+| Random Forest | Non-linear ensemble model |
+| XGBoost | Gradient boosting model with strong tabular performance |
+
+---
+
+## 8. Results
+
+![ROC_curves](./figures/roc_curves_all_models.png)
+
+| Model | Accuracy | ROC-AUC | Recall | Precision | F1 | CV Gap |
+|---|---:|---:|---:|---:|---:|---:|
+| **XGBoost** | **81.97%** | **0.894** | 0.788 | 0.867 | 0.825 | 0.050 |
+| Logistic Regression | 81.97% | 0.889 | 0.788 | 0.867 | 0.825 | 0.045 |
+| Random Forest | 81.97% | 0.875 | 0.818 | 0.844 | 0.831 | 0.063 |
+
+### Final Model Selected: XGBoost
+
+XGBoost was selected because it achieved the strongest ROC-AUC while maintaining an acceptable generalization gap.
+
+---
+
+## 9. Confusion Matrix
+
+```text
+Confusion Matrix — XGBoost Test Set
+
+                  Predicted No Disease   Predicted Disease
+Actual No Disease        TN = 24              FP = 4
+Actual Disease           FN = 7               TP = 26
+```
+
+### Clinical Interpretation
+
+The model correctly identified **26 out of 33 patients with heart disease**, achieving a recall of **78.8%**.
+
+However, the model missed **7 positive cases**, which is an important limitation in a healthcare screening context.
+
+---
+
+## 10. Engineering Decisions
+
+### Leakage Prevention
+
+The dataset was split before preprocessing or feature engineering.
+
+This prevents information from the validation or test sets from influencing imputation, scaling, or transformation logic.
+
+![SPLIT_DATA](./figures/split_Class_balance.png)
+
+```python
+X_train, X_val, X_test, y_train, y_val, y_test = split_data(df)
+
+X_train_processed, X_val_processed, X_test_processed, preprocessor = preprocess(
+    X_train,
+    X_val,
+    X_test
+)
+```
+
+### Generalization Gap Analysis
+
+Model performance was evaluated using both cross-validation and test performance.
+
+```text
+XGBoost:             CV=0.944  Test=0.894  Gap=0.050
+Random Forest:       CV=0.938  Test=0.875  Gap=0.063
+Logistic Regression: CV=0.933  Test=0.889  Gap=0.045
+```
+
+Random Forest showed a larger gap, suggesting possible overfitting.
+
+### Feature Selection
+
+Feature selection was based on:
+
+1. Correlation with target
+2. Feature-feature redundancy
+3. Ablation testing
+4. SHAP importance
+
+This helped remove redundant features and validate that engineered features added predictive value.
+
+---
+
+## 11. Explainability with SHAP
+
+SHAP was used to understand which features influenced model predictions.
+
+![SHAP image](./figures/shap_bar.png)
+
+| Feature | SHAP Importance | Interpretation |
+|---|---:|---|
+| `cp` | 22.5% | Chest pain type was the strongest signal |
+| `isquemia_score` | 17.6% | Engineered ischemia feature added meaningful signal |
+| `est_stroke_volume` | 15.1% | Captured non-linear cardiovascular efficiency |
+| `thal` | 13.7% | Important clinical diagnostic feature |
+| `sex` | 8.8% | Contributed to model predictions |
+| `slope` | 6.5% | ST segment pattern contributed predictive value |
+
+The engineered features ranked among the top predictors, validating the feature engineering strategy.
+
+---
+
+## 12. Key ML Engineering Skills Demonstrated
+
+This project demonstrates my ability to:
+
+- Build a complete supervised ML pipeline
+- Prevent data leakage
+- Compare baseline and advanced models
+- Engineer domain-inspired features
+- Evaluate models using business-relevant metrics
+- Use cross-validation to assess stability
+- Interpret models with SHAP
+- Structure ML code for reproducibility
+- Separate notebooks from reusable production-style modules
+- Communicate model limitations clearly
+
+---
+
+## 13. Limitations
+
+This project is based on a small dataset, so the results should not be interpreted as clinically deployable.
+
+Known limitations:
+
+- Small sample size
+- Limited demographic information
+- No external validation dataset
+- False negatives remain a concern
+- Engineered clinical proxies require further validation
+
+Future improvements could include:
+
+- Hyperparameter tuning with Optuna
+- Model calibration
+- Additional external validation
+- FastAPI inference endpoint
+- Dockerized deployment
+- CI/CD testing pipeline
+
+---
+
+## 14. Tech Stack
+
+| Category | Tools |
+|---|---|
+| Language | Python |
+| Data Processing | pandas, NumPy |
+| Machine Learning | scikit-learn, XGBoost |
+| Explainability | SHAP |
+| Visualization | Matplotlib, Seaborn |
+| Testing | pytest |
+| Project Structure | Modular Python package |
+
+---
+
+## 15. How to Run the Project
+
+### Clone the repository
 
 ```bash
 git clone https://github.com/your-username/heart-disease-ml.git
 cd heart-disease-ml
 ```
 
-### 2. Create a virtual environment
+### Create a virtual environment
 
 ```bash
 python -m venv venv
-source venv/bin/activate   # Mac/Linux
-venv\Scripts\activate      # Windows
+source venv/bin/activate
 ```
 
-### 3. Install dependencies
+### Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Make sure you have Python 3.9+ installed
-
-### 4. Run the project
+### Train the model
 
 ```bash
-python src/train.py
+python src/models/train.py
 ```
 
-## Exploratory Data Analysis
+### Run tests
 
-### Categorical attributes
+```bash
+pytest
+```
 
-![graphics_categorical_attributes](./assests/graphics_categorical_attributes.png)
+---
 
-### Continuous attributes
+## 16. Author
 
-![graphics_continuous_attributes](./assests/graphics_continuous_attributes.png)
+**Jhoselyn Miluska Pajuelo**  
+Software Engineer transitioning into AI/ML Engineering  
 
+**Dr. Morgan Carson-Marino**  
+Scientist and Pharmacist at University of Utah
 
-## Feature Engineering
-
-- **Cardiac Capacity** = `thalach / age`  
-  → captures heart performance relative to patient age
-
-- **Ischemia Score** = normalized `oldpeak` + `exang` + `ca`  
-  → combines multiple indicators of heart stress into a single metric
-
-- **Estimated Stroke Volume** = `(trestbps / thalach) * (age / 50)`  
-  → approximates cardiovascular efficiency under stress
-
-## Correlation festures
-
-![correlation_matrix](./assests/correlation_matrix.png)
-
-## Insight
-
-Feature engineering improved performance from:  86% → 93% accuracy (+7%)
-
-## Ablation Study
-
-Feature Set	Accuracy
-Base features	86%
-Reduced engineered features	89%
-Full feature set	93%
-
-## Models Evaluated
-- Logistic Regression
-- Random Forest
-- XGBoost
-
-## Model Performance
-
-Model	AUC
-Logistic Regression	0.91
-XGBoost	0.98
-Random Forest	0.999
-
-## Cross-Validation (5-fold)
-
-Model	CV AUC	Std
-Logistic Regression	0.906	±0.034
-XGBoost	0.981	±0.012
-Random Forest	0.9987	±0.0025
-
-Random Forest achieved the highest performance with extremely low variance, indicating strong generalization.
-
-## Model Interpretability (SHAP)
-
-SHAP was used to analyze feature contributions.
-
-Findings:
-No single feature dominates the model
-Top feature contributes ~29% of total importance
-Model relies on multiple complementary signals
-
-
-![SHAP (test set)](./assests/SHAP%20(test%20set).png)
-
-
-# Confusion Matrix
-
-[[91  9]
- [ 5 100]]
-False Negatives: 5
-False Positives: 9
-
-The model achieves 95% recall for disease detection, minimizing missed cases — critical in healthcare.
-
-![Confusion matrix_ XGBoost (test set)](./assests/Confusion%20matrix_%20XGBoost%20(test%20set).png)
-
-
-# ROC Curve
- 
-ROC-AUC ≈ 0.98–0.999
-Curve close to top-left corner
-
-The model demonstrates excellent class separability and robustness across thresholds.
-
-![ROC_curve_XGBoost (test set)](./assests/ROC_curve_XGBoost%20(test%20set).png)
-
-## Final Model
-Random Forest
-- Highest AUC
-- Lowest variance
-- Strong generalization
-- Simpler than XGBoost
-
-## Key Takeaways
-
-Feature engineering can significantly improve performance
-Cross-validation is essential for model validation
-SHAP helps avoid misleading feature importance interpretations
-Model selection should consider both performance and stability
-
-## Conclusion
-
-This project demonstrates a complete machine learning workflow, from data exploration to model selection, highlighting the impact of feature engineering and proper validation techniques.
-
-
-## Author
-
-Jhoselyn Miluska Pajuelo
-Software Engineer | ML Enthusiast
+Focused on building reliable, explainable, and user-centered machine learning systems.
