@@ -218,7 +218,7 @@ The dataset was split before preprocessing or feature engineering.
 
 This prevents information from the validation or test sets from influencing imputation, scaling, or transformation logic.
 
-![SPLIT_DATA](./figures/split_Class_balance.png)
+![SPLIT_DATA](./figures/split_class_balance.png)
 
 ```python
 X_train, X_val, X_test, y_train, y_val, y_test = split_data(df)
@@ -274,9 +274,9 @@ The engineered features ranked among the top predictors, validating the feature 
 
 ---
 
-## 12. Key ML Engineering Skills Demonstrated
+## 12. Results of feature behaviour in results
 
-![Inference_image](./figures/inference.png)
+<img src="./figures/inference.png" alt="Inference_image" width="400"/>
 
 **Counterintuitive feature behavior:** `isquemia_score` has a negative
 correlation with the target (-0.637), meaning higher composite ischemia 
