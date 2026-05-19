@@ -121,3 +121,13 @@ def save_figure(fig, path, dpi=150):
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=dpi, bbox_inches="tight")
     print(f"figure saves in {path}")
+
+def save_pickle(obj, path):
+    """
+    Save any object to disk as a .pkl file.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "wb") as f:
+        pickle.dump(obj, f)
+    print(f"  ✔ Saved  → {path}")
