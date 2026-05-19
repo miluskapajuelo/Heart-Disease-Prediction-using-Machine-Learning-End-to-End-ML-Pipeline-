@@ -125,17 +125,14 @@ Final Model Selection
 │       └── helpers.py
 │
 ├── models/
-│   ├── logistic_regression.pkl
-│   ├── random_forest.pkl
-│   ├── xgboost.pkl
+│   ├── best_model.pkl
 │   └── preprocessor.pkl
 │
-├── tests/
-│   ├── test_preprocess.py
-│   ├── test_features.py
-│   └── test_predict.py
-│
+├── configs/
+│   ├── model_config.yaml
+│  
 ├── requirements.txt
+├── inference.py
 ├── README.md
 └── .gitignore
 ```
@@ -279,6 +276,19 @@ The engineered features ranked among the top predictors, validating the feature 
 
 ## 12. Key ML Engineering Skills Demonstrated
 
+![Inference_image](./figures/inference.png)
+
+**Counterintuitive feature behavior:** `isquemia_score` has a negative
+correlation with the target (-0.637), meaning higher composite ischemia 
+scores correlate with *lower* disease probability in this dataset. This 
+likely reflects selection bias in the Cleveland cohort — patients with 
+known severe ischemia may have been filtered before enrollment. 
+This is a known limitation of the dataset, not a modeling error.
+
+---
+
+## 13. Key ML Engineering Skills Demonstrated
+
 This project demonstrates my ability to:
 
 - Build a complete supervised ML pipeline
@@ -294,7 +304,7 @@ This project demonstrates my ability to:
 
 ---
 
-## 13. Limitations
+## 14. Limitations
 
 This project is based on a small dataset, so the results should not be interpreted as clinically deployable.
 
@@ -317,7 +327,7 @@ Future improvements could include:
 
 ---
 
-## 14. Tech Stack
+## 15. Tech Stack
 
 | Category | Tools |
 |---|---|
@@ -331,7 +341,7 @@ Future improvements could include:
 
 ---
 
-## 15. How to Run the Project
+## 16. How to Run the Project
 
 ### Clone the repository
 
@@ -367,7 +377,7 @@ pytest
 
 ---
 
-## 16. Author
+## 17. Author
 
 **Jhoselyn Miluska Pajuelo**  
 Software Engineer transitioning into AI/ML Engineering  
