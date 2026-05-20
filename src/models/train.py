@@ -66,6 +66,9 @@ def train_model(
             val_score   → ROC-AUC on the held-out validation set
     """
     
+    if model_name not in CFG["models"]:
+        raise ValueError(f"Unknown model '{model_name}'")
+
     cv_folds = CFG["training"]["cv_folds"]
     scoring = CFG["training"]["scoring"]
     n_jobs = CFG["training"]["n_jobs"]
