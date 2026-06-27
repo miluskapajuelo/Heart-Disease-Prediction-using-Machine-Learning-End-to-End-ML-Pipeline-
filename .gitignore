@@ -1,4 +1,8 @@
-.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
 models/*.pkl
 models/*.txt
@@ -9,3 +13,6 @@ data/processed/
 __pycache__/
 
 .ipynb_checkpoints/
+
+feedback.md
+imagesToLearn
