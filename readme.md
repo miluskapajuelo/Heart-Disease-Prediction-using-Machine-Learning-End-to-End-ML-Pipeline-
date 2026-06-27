@@ -350,7 +350,36 @@ git clone https://github.com/your-username/heart-disease-ml.git
 cd heart-disease-ml
 ```
 
-### Create a virtual environment
+### UV 
+
+## Getting Started
+
+This project uses [uv](https://astral.sh) for fast, reliable Python package and environment management.
+
+### Prerequisites
+
+Make sure you have `uv` installed on your system. If you don't have it yet, install it via:
+
+```bash
+# macOS/Linux
+curl -LsSf https://astral.sh | sh
+
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh | iex"
+```
+
+### Setup and Execution
+
+You don't need to manually create or activate a virtual environment. Simply clone the repository, navigate into the project directory, and run the pipeline:
+
+```bash
+uv run main.py
+```
+
+*Note: `uv run` will automatically parse the `pyproject.toml` file, set up an isolated virtual environment, install all required dependencies (including heavy ML packages), and execute the script.*
+
+
+### Create a virtual environment (without UV)
 
 ```bash
 python -m venv venv
