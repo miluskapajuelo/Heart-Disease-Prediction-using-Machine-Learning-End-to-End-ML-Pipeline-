@@ -1,3 +1,13 @@
+---
+title: Heart Disease Risk API
+emoji: ❤️
+colorFrom: blue
+colorTo: red
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Heart Disease Risk Prediction with Machine Learning
 
 > End-to-end machine learning project for predicting heart disease risk using clinical patient data.  

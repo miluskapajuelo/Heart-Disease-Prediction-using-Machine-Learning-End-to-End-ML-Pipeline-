@@ -1,7 +1,10 @@
 from inference import predict
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 app = FastAPI(title = "Heart disease predictor")
 
@@ -11,6 +14,12 @@ app.add_middleware(
     allow_methods = ["*"],
     allow_headers = ["*"]
 )
+
+
+limiter = Limiter(key_func = get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 
 class Patient(BaseModel):
     age: int = Field(..., example=63)
@@ -37,7 +46,8 @@ def heath():
     return {"status":"ok"}
 
 @app.post("/predict")
-def predict_patient(patient: Patient):
+@limiter.limit("10/minute")
+def predict_patient(request:Request, patient: Patient):
     data = patient.model_dump()
     result = predict(data)
     return result
