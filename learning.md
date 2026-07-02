@@ -200,3 +200,6 @@ Combining medical variables to create indicators like BMI (from height and weigh
 
 
 ## 14. FastAPI for API
+
+## 15. Run API
+uv run fastapi dev api.py
