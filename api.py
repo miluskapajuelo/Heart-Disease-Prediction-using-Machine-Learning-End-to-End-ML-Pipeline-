@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from inference import metadata
 
 app = FastAPI(title = "Heart disease predictor")
 
@@ -45,9 +46,14 @@ def root():
 def heath():
     return {"status":"ok"}
 
+@app.get("/get_model")
+def model_info():
+    return metadata
+
 @app.post("/predict")
 @limiter.limit("10/minute")
 def predict_patient(request:Request, patient: Patient):
     data = patient.model_dump()
     result = predict(data)
     return result
+
