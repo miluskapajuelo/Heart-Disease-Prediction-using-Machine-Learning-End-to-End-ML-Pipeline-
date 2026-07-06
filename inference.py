@@ -1,3 +1,5 @@
+import json
+
 import pandas as pd
 import numpy as np
 from src.utils.config  import CFG, PROJECT_ROOT
@@ -5,19 +7,19 @@ from src.utils.helpers import load_pickle
 
 models_dir = PROJECT_ROOT / CFG["paths"]["models_dir"]
 
-
 model = load_pickle(models_dir / "best_model.pkl")
 imputer = load_pickle(models_dir / "preprocessor.pkl")
 
-
-
-# Best model name for display
-best_model_name_path = models_dir / "best_model_name.txt"
-if best_model_name_path.exists():
-    best_model_name = best_model_name_path.read_text().strip()
+# Model metadata (name, version, metrics, etc.) saved during training
+metadata_path = models_dir / "model_metadata.json"
+if metadata_path.exists():
+    with open(metadata_path) as f:
+        metadata = json.load(f)
+    best_model_name = metadata["model_name"]
 else:
+    metadata = {}
     best_model_name = type(model).__name__
- 
+
 print(f"  Model loaded   : {best_model_name}")
 
  
@@ -106,6 +108,13 @@ def predict(patient: dict) -> dict:
         "prediction":  prediction,
         "risk_label":  risk_label,
         "risk_level":  risk_level,
+        "model_version": metadata.get("model_version"),
+        "trained_at": metadata.get("trained_at"),
+        "threshold": metadata.get("decision_threshold"),
+        "roc_auc": metadata.get("metrics",{}).get("roc_auc"),
+        "recall": metadata.get("metrics", {}).get("recall"),
+        "features": metadata.get("features",[]).get("features"),
+        "author": metadata.get("author"),
     }
  
  
