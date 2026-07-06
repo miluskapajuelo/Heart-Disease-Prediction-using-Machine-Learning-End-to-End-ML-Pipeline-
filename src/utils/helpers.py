@@ -1,9 +1,34 @@
+import json
 import pickle
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 
 # Serialization
+
+def save_json(obj, path):
+    """
+    Save a dict/list to disk as a .json file.
+
+    Args:
+        obj:
+            the python object to serialize (must be JSON-serializable).
+
+        path(str | Path):
+            destination file path where the json file will be stored.
+
+    Returns:
+        None
+
+    Notes:
+        - Creates parent directories automatically if they do not exist.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(obj, f, indent=2)
+    print(f"  ✔ Saved  → {path}")
+
 
 def save_pickle(obj, path):
     """
