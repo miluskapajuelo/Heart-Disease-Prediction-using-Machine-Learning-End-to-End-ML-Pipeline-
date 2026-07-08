@@ -113,7 +113,7 @@ def predict(patient: dict) -> dict:
         "threshold": metadata.get("decision_threshold"),
         "roc_auc": metadata.get("metrics",{}).get("roc_auc"),
         "recall": metadata.get("metrics", {}).get("recall"),
-        "features": metadata.get("features",[]).get("features"),
+        "features": metadata.get("features",[]),
         "author": metadata.get("author"),
     }
  
