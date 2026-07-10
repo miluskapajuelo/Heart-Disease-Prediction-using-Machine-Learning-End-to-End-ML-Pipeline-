@@ -47,9 +47,8 @@ features:
     - "sex"
     - "cp" 
     - "thal"
-    - "isquemia_score"
-    - "est_stroke_volume"
-    - "slope"
+    - "oldpeak"
+    - "ca"
 
 # ---------------------------------------------------------
 # Models
@@ -92,3 +91,26 @@ training:
 evaluation:
    overfitting_threshold: 0.05
    decision_threshold:    0.5
+
+
+risk_bands:
+  - level: LOW
+    label: Low Risk
+    max: 0.30
+    recommendations:
+      - "Continue routine cardiovascular health maintenance and periodic screening."
+      - "Reinforce heart-healthy lifestyle measures (diet, activity, smoking cessation)."
+      - "Monitor blood pressure and lipid profile at routine follow-up visits."
+  - level: MODERATE
+    label: Moderate Risk
+    max: 0.50
+    recommendations:
+      - "Recommend clinical correlation and further evaluation as indicated."
+      - "Consider referral to Cardiology if risk factors persist or worsen."
+  - level: HIGH
+    label: High Risk
+    max: 1.0
+    recommendations:
+      - "Recommend prompt clinical evaluation."
+      - "Consider referral to Cardiology."
+      - "Correlate with ECG, biomarkers, echocardiography or stress testing as indicated."

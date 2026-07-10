@@ -36,8 +36,8 @@ def build_features(
  
     def _add_features(X):
         df = X.copy()
-        df["isquemia_score"]    = df["oldpeak"] + df["exang"] + (df["ca"] / 3)
-        df["est_stroke_volume"] = (df["trestbps"] / df["thalach"]) * (df["age"] / 50)
+        df["isquemia_score"]    = df["oldpeak"]/6.2 + df["exang"] + (df["ca"] / 3)
+        #df["est_stroke_volume"] = (df["trestbps"] / df["thalach"]) * (df["age"] / 50)
         return df
  
     X_train_fe = _add_features(X_train)

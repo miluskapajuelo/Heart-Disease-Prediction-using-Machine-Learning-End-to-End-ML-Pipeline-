@@ -107,10 +107,10 @@ def add_engineered_features(
 
     def _add_features(x):
         df = x.copy()
-        df['cardiac_capacity']  = df['thalach'] / df['age']
-        df['isquemia_score']    = df['oldpeak'] + df['exang'] + (df['ca'] / 3)
-        df['est_stroke_volume'] = (df['trestbps'] / df['thalach']) * (df['age'] / 50)
-        df['troponin_index']    = (df['oldpeak'] * 1.5) + (df['exang'] * 2) + (df['ca'] * 1.2)
+        # df['cardiac_capacity']  = df['thalach'] / df['age']
+        df['isquemia_score']    = df['oldpeak']/6.2 + df['exang'] + (df['ca'] / 3)
+        # df['est_stroke_volume'] = (df['trestbps'] / df['thalach']) * (df['age'] / 50)
+        # df['troponin_index']    = (df['oldpeak'] * 1.5) + (df['exang'] * 2) + (df['ca'] * 1.2)
 
         return df
     
