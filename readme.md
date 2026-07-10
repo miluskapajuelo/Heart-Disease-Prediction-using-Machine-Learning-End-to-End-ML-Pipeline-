@@ -192,13 +192,13 @@ The following models were trained and compared:
 
 | Model | Accuracy | ROC-AUC | Recall | Precision | F1 | CV Gap |
 |---|---:|---:|---:|---:|---:|---:|
-| **XGBoost** | **80.33%** | **0.905** | 0.800 | 0.8485 | 0.8235 | 0.9607 | 0.0549 |
-| Logistic Regression | 0.8361 | 0.8961 | 0.8710 | 0.8182 | 0.8438 | 0.9527 | 0.0566 |
-| Random Forest | 0.8033 | 0.8853 | 0.8182 | 0.8182 | 0.8182 | 0.9614 | 0.0761
+| **Random Forest** | **80.33%** | **0.8858** | 0.800 | 0.8485 | 0.8235 | 0.9470 | 0.0612 |
+| Logistic Regression | 0.8197 | 0.8815 | 0.8438 | 0.8182 | 0.8308 | 0.9527 | 0.0612 |
+| XGBoost | 0.7869 | 0.8734 | 0.7778 | 0.8485 | 0.8116 | 0.9561 | 0.0827
 
 ### Final Model Selected: XGBoost
 
-XGBoost was selected because it achieved the strongest ROC-AUC while maintaining an acceptable generalization gap.
+Random Forest was selected because it achieved the strongest ROC-AUC while maintaining an acceptable generalization gap.
 
 ---
 
@@ -208,13 +208,13 @@ XGBoost was selected because it achieved the strongest ROC-AUC while maintaining
 Confusion Matrix — XGBoost Test Set
 
                   Predicted No Disease   Predicted Disease
-Actual No Disease        TN = 24              FP = 5
+Actual No Disease        TN = 21              FP = 5
 Actual Disease           FN = 7               TP = 28
 ```
 
 ### Clinical Interpretation
 
-The model correctly identified **26 out of 33 patients with heart disease**, achieving a recall of **78.8%**.
+The model correctly identified **21 out of 33 patients with heart disease**, achieving a recall of **84.85%**.
 
 However, the model missed **7 positive cases**, which is an important limitation in a healthcare screening context.
 
@@ -264,33 +264,19 @@ SHAP was used to understand which features influenced model predictions.
 
 | Feature | SHAP Importance | Interpretation |
 |---|---:|---|
-| `cp` | 24.8% | Chest pain type was the strongest signal |
-| `isquemia_score` | 22.0% | Engineered ischemia feature added meaningful signal |
-| `ca` | 17.7% |  |
-| `thal` | 16.2% | Important clinical diagnostic feature |
-| `est_stroke_volume` | 10.7% | Captured non-linear cardiovascular efficiency |
-
-| `sex` | 8.6% | Contributed to model predictions |
+| `cp` | 29.7% | Chest pain type was the strongest contributor to the model's prediction. |
+| `thal` | 24.5% | Thallium stress test results indicate that myocardial perfusion findings strongly influenced the prediction. |
+| `ca` | 22.8% | The number of major vessels identified by fluoroscopy had a substantial impact. |
+| `oldpeak` | 17.3% | ST-segment depression induced by exercise meaningfully captures evidence of exercise-related myocardial ischemia. |
+| `sex` | 5.6% | Biological sex contributed modestly to the prediction. |
 
 
 The engineered features ranked among the top predictors, validating the feature engineering strategy.
 
 ---
 
-## 12. Results of feature behaviour in results
 
-<img src="./figures/inference.png" alt="Inference_image" width="400"/>
-
-**Counterintuitive feature behavior:** `isquemia_score` has a negative
-correlation with the target (-0.637), meaning higher composite ischemia 
-scores correlate with *lower* disease probability in this dataset. This 
-likely reflects selection bias in the Cleveland cohort — patients with 
-known severe ischemia may have been filtered before enrollment. 
-This is a known limitation of the dataset, not a modeling error.
-
----
-
-## 13. Key ML Engineering Skills Demonstrated
+## 12. Key ML Engineering Skills Demonstrated
 
 This project demonstrates my ability to:
 
@@ -307,7 +293,7 @@ This project demonstrates my ability to:
 
 ---
 
-## 14. Limitations
+## 13. Limitations
 
 This project is based on a small dataset, so the results should not be interpreted as clinically deployable.
 
@@ -318,14 +304,14 @@ Known limitations:
 - No external validation dataset
 - False negatives remain a concern
 - Engineered clinical proxies require further validation
+- FastAPI inference endpoint
+- Dockerized deployment
 
 Future improvements could include:
 
 - Hyperparameter tuning with Optuna
 - Model calibration
 - Additional external validation
-- FastAPI inference endpoint
-- Dockerized deployment
 - CI/CD testing pipeline
 
 ---
@@ -413,8 +399,5 @@ pytest
 
 **Jhoselyn Miluska Pajuelo**  
 Software Engineer transitioning into AI/ML Engineering  
-
-**Dr. Morgan Carson-Marino**  
-Scientist and Pharmacist at University of Utah
 
 Focused on building reliable, explainable, and user-centered machine learning systems.
