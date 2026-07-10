@@ -192,9 +192,9 @@ The following models were trained and compared:
 
 | Model | Accuracy | ROC-AUC | Recall | Precision | F1 | CV Gap |
 |---|---:|---:|---:|---:|---:|---:|
-| **XGBoost** | **81.97%** | **0.894** | 0.788 | 0.867 | 0.825 | 0.050 |
-| Logistic Regression | 81.97% | 0.889 | 0.788 | 0.867 | 0.825 | 0.045 |
-| Random Forest | 81.97% | 0.875 | 0.818 | 0.844 | 0.831 | 0.063 |
+| **XGBoost** | **80.33%** | **0.905** | 0.800 | 0.8485 | 0.8235 | 0.9607 | 0.0549 |
+| Logistic Regression | 0.8361 | 0.8961 | 0.8710 | 0.8182 | 0.8438 | 0.9527 | 0.0566 |
+| Random Forest | 0.8033 | 0.8853 | 0.8182 | 0.8182 | 0.8182 | 0.9614 | 0.0761
 
 ### Final Model Selected: XGBoost
 
@@ -208,8 +208,8 @@ XGBoost was selected because it achieved the strongest ROC-AUC while maintaining
 Confusion Matrix — XGBoost Test Set
 
                   Predicted No Disease   Predicted Disease
-Actual No Disease        TN = 24              FP = 4
-Actual Disease           FN = 7               TP = 26
+Actual No Disease        TN = 24              FP = 5
+Actual Disease           FN = 7               TP = 28
 ```
 
 ### Clinical Interpretation
@@ -240,15 +240,6 @@ X_train_processed, X_val_processed, X_test_processed, preprocessor = preprocess(
 )
 ```
 
-### Generalization Gap Analysis
-
-Model performance was evaluated using both cross-validation and test performance.
-
-```text
-XGBoost:             CV=0.944  Test=0.894  Gap=0.050
-Random Forest:       CV=0.938  Test=0.875  Gap=0.063
-Logistic Regression: CV=0.933  Test=0.889  Gap=0.045
-```
 
 Random Forest showed a larger gap, suggesting possible overfitting.
 
@@ -273,12 +264,14 @@ SHAP was used to understand which features influenced model predictions.
 
 | Feature | SHAP Importance | Interpretation |
 |---|---:|---|
-| `cp` | 22.5% | Chest pain type was the strongest signal |
-| `isquemia_score` | 17.6% | Engineered ischemia feature added meaningful signal |
-| `est_stroke_volume` | 15.1% | Captured non-linear cardiovascular efficiency |
-| `thal` | 13.7% | Important clinical diagnostic feature |
-| `sex` | 8.8% | Contributed to model predictions |
-| `slope` | 6.5% | ST segment pattern contributed predictive value |
+| `cp` | 24.8% | Chest pain type was the strongest signal |
+| `isquemia_score` | 22.0% | Engineered ischemia feature added meaningful signal |
+| `ca` | 17.7% |  |
+| `thal` | 16.2% | Important clinical diagnostic feature |
+| `est_stroke_volume` | 10.7% | Captured non-linear cardiovascular efficiency |
+
+| `sex` | 8.6% | Contributed to model predictions |
+
 
 The engineered features ranked among the top predictors, validating the feature engineering strategy.
 

@@ -1,5 +1,4 @@
 import json
-
 import pandas as pd
 import numpy as np
 from src.utils.config  import CFG, PROJECT_ROOT
@@ -22,6 +21,13 @@ else:
 
 print(f"  Model loaded   : {best_model_name}")
 
+def classify(probability: float) -> tuple[str, str]:
+    """Devuelve (level, label) según la banda en la que cae la probabilidad."""
+    for band in CFG["RISK_BANDS"]:
+        if probability < band["max"]:
+            return band["level"], band["label"]
+    last = CFG["RISK_BANDS"][-1]
+    return last["level"], last["label"]
  
 def _preprocess_patient(X: pd.DataFrame, imputer) -> pd.DataFrame:
     """
@@ -90,18 +96,9 @@ def predict(patient: dict) -> dict:
  
     prediction  = int(model.predict(X_in)[0])
     probability = float(model.predict_proba(X_in)[0, 1])
- 
-    threshold = CFG["evaluation"]["decision_threshold"]   # 0.5
- 
-    if probability < 0.30:
-        risk_level = "LOW"
-        risk_label = "Low Risk"
-    elif probability < threshold:
-        risk_level = "MODERATE"
-        risk_label = "Moderate Risk"
-    else:
-        risk_level = "HIGH"
-        risk_label = "High Risk"
+
+
+    risk_level, risk_label, = classify(probability)
  
     return {
         "probability": round(probability, 4),

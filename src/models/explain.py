@@ -16,22 +16,41 @@ def explain_model(
     Run SHAP analysis on the best model and save all explanation figures.
  
     Args:
-        model       : Fitted XGBoost estimator (best model from compare_models)
+        model       : Fitted estimator, tree-based (RandomForest/XGBoost) or
+                      linear (LogisticRegression) — best model from compare_models
         X_test      : Test features (after build_features, selected columns)
         y_test      : Test target
         patient_idx : Index of the patient to explain with a force plot (default 0)
- 
+
     Returns:
         shap_importance : DataFrame with mean |SHAP| and share of total per feature
     """
- 
+
     figures_dir = PROJECT_ROOT / CFG["paths"]["figures_dir"]
     figures_dir.mkdir(parents=True, exist_ok=True)
- 
+
     # ── Compute SHAP values ───────────────────────────────────────────────────
-    explainer   = shap.TreeExplainer(model)
+    # TreeExplainer only supports tree-based models; linear models (e.g. the
+    # best model can be LogisticRegression) need LinearExplainer instead.
+    if hasattr(model, "coef_"):
+        explainer = shap.LinearExplainer(model, X_test)
+    else:
+        explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_test)
- 
+
+    # Normalize to a 2D array (n_samples, n_features) for the positive class.
+    # Older shap versions return a list [class0, class1] for classifiers;
+    # newer versions (>=0.45) return a single 3D array (n_samples, n_features, n_classes).
+    expected_value = explainer.expected_value
+    if isinstance(shap_values, list):
+        shap_values = shap_values[1]
+        if isinstance(expected_value, (list, np.ndarray)):
+            expected_value = expected_value[1]
+    elif isinstance(shap_values, np.ndarray) and shap_values.ndim == 3:
+        shap_values = shap_values[:, :, 1]
+        if isinstance(expected_value, (list, np.ndarray)):
+            expected_value = expected_value[1]
+
     # ── 1. Bar chart — global feature importance ──────────────────────────────
     print("  Generating SHAP bar chart (global importance)...")
     fig_bar, ax_bar = plt.subplots(figsize=(8, 5))
@@ -78,7 +97,7 @@ def explain_model(
     print(f"    P(disease)     : {pred_proba:.2%}")
  
     shap.force_plot(
-        explainer.expected_value,
+        expected_value,
         shap_values[patient_idx],
         patient,
         matplotlib=True,

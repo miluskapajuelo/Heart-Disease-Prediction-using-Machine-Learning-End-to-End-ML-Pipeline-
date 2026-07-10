@@ -1,23 +1,78 @@
 {
-  "model_name": "xgboost",
-  "model_version": "1.7.26",
-  "trained_at": "2026-07-06T00:43:56.797100+00:00",
+  "model_name": "random_forest",
+  "model_version": "07.09.26",
+  "trained_at": "2026-07-10T00:35:32.526716+00:00",
   "decision_threshold": 0.5,
   "features": [
     "sex",
     "cp",
     "thal",
-    "isquemia_score",
-    "est_stroke_volume",
-    "slope"
+    "oldpeak",
+    "ca"
   ],
   "metrics": {
-    "roc_auc": 0.8939393939393939,
-    "recall": 0.7878787878787878
+    "roc_auc": 0.8858225108225108,
+    "recall": 0.8484848484848485,
+    "accuracy": 0.8032786885245902,
+    "precision": 0.8,
+    "f1-score": 0.8235294117647058
   },
+  "shap_importance": [
+    {
+      "feature": "cp",
+      "share": "29.7%"
+    },
+    {
+      "feature": "thal",
+      "share": "24.5%"
+    },
+    {
+      "feature": "ca",
+      "share": "22.8%"
+    },
+    {
+      "feature": "oldpeak",
+      "share": "17.3%"
+    },
+    {
+      "feature": "sex",
+      "share": "5.6%"
+    }
+  ],
   "libraries": {
     "scikit-learn": "sklearn.1.9.0",
     "xgboost": "xgboost.3.3.0"
   },
-  "author": "Jhoselyn Pajuelo Villanueva"
+  "author": "Jhoselyn Pajuelo Villanueva",
+  "probability": [
+    {
+      "level": "LOW",
+      "label": "Low Risk",
+      "max": 0.3,
+      "recommendations": [
+        "Continue routine cardiovascular health maintenance and periodic screening.",
+        "Reinforce heart-healthy lifestyle measures (diet, activity, smoking cessation).",
+        "Monitor blood pressure and lipid profile at routine follow-up visits."
+      ]
+    },
+    {
+      "level": "MODERATE",
+      "label": "Moderate Risk",
+      "max": 0.5,
+      "recommendations": [
+        "Recommend clinical correlation and further evaluation as indicated.",
+        "Consider referral to Cardiology if risk factors persist or worsen."
+      ]
+    },
+    {
+      "level": "HIGH",
+      "label": "High Risk",
+      "max": 1.0,
+      "recommendations": [
+        "Recommend prompt clinical evaluation.",
+        "Consider referral to Cardiology.",
+        "Correlate with ECG, biomarkers, echocardiography or stress testing as indicated."
+      ]
+    }
+  ]
 }
