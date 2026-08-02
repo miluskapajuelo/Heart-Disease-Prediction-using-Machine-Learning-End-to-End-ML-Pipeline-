@@ -1,13 +1,15 @@
 import json
 import pandas as pd
 import numpy as np
-from src.utils.config  import CFG, PROJECT_ROOT
-from src.utils.helpers import load_pickle
+from src.utils.config  import CFG, PROJECT_ROOT, RISK_BANDS
+from src.utils.helpers import _explain_patient, load_pickle
+import shap
 
 models_dir = PROJECT_ROOT / CFG["paths"]["models_dir"]
 
 model = load_pickle(models_dir / "best_model.pkl")
 imputer = load_pickle(models_dir / "preprocessor.pkl")
+explainer = shap.TreeExplainer(model)
 
 # Model metadata (name, version, metrics, etc.) saved during training
 metadata_path = models_dir / "model_metadata.json"
@@ -15,6 +17,7 @@ if metadata_path.exists():
     with open(metadata_path) as f:
         metadata = json.load(f)
     best_model_name = metadata["model_name"]
+
 else:
     metadata = {}
     best_model_name = type(model).__name__
@@ -23,10 +26,10 @@ print(f"  Model loaded   : {best_model_name}")
 
 def classify(probability: float) -> tuple[str, str]:
     """Devuelve (level, label) según la banda en la que cae la probabilidad."""
-    for band in CFG["RISK_BANDS"]:
+    for band in CFG["risk_bands"]:
         if probability < band["max"]:
             return band["level"], band["label"]
-    last = CFG["RISK_BANDS"][-1]
+    last = CFG["risk_bands"][-1]
     return last["level"], last["label"]
  
 def _preprocess_patient(X: pd.DataFrame, imputer) -> pd.DataFrame:
@@ -63,6 +66,29 @@ def _build_features_patient(X: pd.DataFrame) -> pd.DataFrame:
     # Select exactly the 6 final features
     selected = CFG["features"]["selected"]
     return df[selected]
+
+def classify(probability: float) -> tuple:
+    """
+    Map a probability to (risk_level, risk_label, recommendations) using
+    RISK_BANDS loaded from configs/risk_bands.yaml.
+ 
+    Walks the bands in order and returns the first one where
+    probability < band["max"]. Bands must be in strictly ascending `max`
+    order for this to work — enforced at import time in
+    src/utils/config.py, so a misordered config fails fast instead of
+    silently misclassifying patients.
+ 
+    The fallback (`bands[-1]`) covers probability == 1.0 exactly, which
+    fails the `<` check on the last band even though it should always
+    land there.
+    """
+    for band in RISK_BANDS:
+        if probability < band["max"]:
+            return band["level"], band["label"], band["recommendations"]
+    last = RISK_BANDS[-1]
+    return last["level"], last["label"], last["recommendations"]
+ 
+
  
  
 # ── Main predict function ─────────────────────────────────────────────────────
@@ -96,23 +122,44 @@ def predict(patient: dict) -> dict:
  
     prediction  = int(model.predict(X_in)[0])
     probability = float(model.predict_proba(X_in)[0, 1])
+    model_confidence, confidence_std = _model_confidence(model, X_in)
 
+    risk_level, risk_label,recommendations = classify(probability)
 
-    risk_level, risk_label, = classify(probability)
+    feature_contributions = _explain_patient(X_in, explainer)
  
     return {
         "probability": round(probability, 4),
         "prediction":  prediction,
         "risk_label":  risk_label,
         "risk_level":  risk_level,
-        "model_version": metadata.get("model_version"),
-        "trained_at": metadata.get("trained_at"),
-        "threshold": metadata.get("decision_threshold"),
-        "roc_auc": metadata.get("metrics",{}).get("roc_auc"),
-        "recall": metadata.get("metrics", {}).get("recall"),
-        "features": metadata.get("features",[]),
-        "author": metadata.get("author"),
+        "recommendations" : recommendations,
+        "model_confidence": model_confidence,
+        "confidence_std" : confidence_std,
+        "feature_contributions": feature_contributions,
     }
+
+def _model_confidence(model, X_in: pd.DataFrame) -> tuple:
+    """
+    Model confidence based on agreement between the Random Forest's trees.
+
+    """
+    if not hasattr(model, "estimators_"):
+        return None, None
+ 
+    tree_probs = np.array([
+        tree.predict_proba(X_in.to_numpy())[0, 1] for tree in model.estimators_
+    ])
+    std = float(tree_probs.std())
+ 
+    if std < 0.155:
+        level = "High"
+    elif std < 0.423:
+        level = "Moderate"
+    else:
+        level = "Low"
+ 
+    return level, round(std, 4)
  
  
 def print_result(patient: dict, result: dict) -> None:

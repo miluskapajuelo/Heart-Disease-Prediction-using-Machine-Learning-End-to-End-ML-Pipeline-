@@ -196,7 +196,7 @@ The following models were trained and compared:
 | Logistic Regression | 0.8197 | 0.8815 | 0.8438 | 0.8182 | 0.8308 | 0.9527 | 0.0612 |
 | XGBoost | 0.7869 | 0.8734 | 0.7778 | 0.8485 | 0.8116 | 0.9561 | 0.0827
 
-### Final Model Selected: XGBoost
+### Final Model Selected: Random Forest
 
 Random Forest was selected because it achieved the strongest ROC-AUC while maintaining an acceptable generalization gap.
 
@@ -205,7 +205,7 @@ Random Forest was selected because it achieved the strongest ROC-AUC while maint
 ## 9. Confusion Matrix
 
 ```text
-Confusion Matrix — XGBoost Test Set
+Confusion Matrix — Random Forest Test Set
 
                   Predicted No Disease   Predicted Disease
 Actual No Disease        TN = 21              FP = 5
@@ -304,8 +304,6 @@ Known limitations:
 - No external validation dataset
 - False negatives remain a concern
 - Engineered clinical proxies require further validation
-- FastAPI inference endpoint
-- Dockerized deployment
 
 Future improvements could include:
 
@@ -313,6 +311,86 @@ Future improvements could include:
 - Model calibration
 - Additional external validation
 - CI/CD testing pipeline
+
+---
+
+## 14. API
+
+A **FastAPI** service exposes the trained model for real-time inference. It wraps [`inference.py`](inference.py) and is defined in [`api.py`](api.py).
+
+**Features:**
+
+- Request validation with Pydantic (`Patient` schema, 13 clinical fields)
+- CORS enabled for a local frontend (`localhost:3000`)
+- Rate limiting on the prediction endpoint (`slowapi`, 10 requests/minute per client)
+- Dockerized for deployment (see [`Dockerfile`](Dockerfile)), exposed on port `7860` — ready for Hugging Face Spaces
+
+### Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/` | Health check / welcome message |
+| `GET` | `/health` | Service health status |
+| `GET` | `/get_model` | Returns model metadata (version, metrics, features, author) |
+| `POST` | `/predict` | Predicts heart disease risk for a patient (rate-limited: 10/min) |
+
+### Example request
+
+
+```http
+POST /predict HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+```
+
+```json
+{
+  "age": 63,
+  "sex": 1,
+  "cp": 3,
+  "trestbps": 145,
+  "chol": 233,
+  "fbs": 1,
+  "restecg": 0,
+  "thalach": 150,
+  "exang": 0,
+  "oldpeak": 2.3,
+  "slope": 0,
+  "ca": 0,
+  "thal": 1
+}
+```
+
+### Example response
+
+```json
+{
+  "probability": 0.8421,
+  "prediction": 1,
+  "risk_label": "High Risk",
+  "risk_level": "HIGH",
+  "model_version": "1.0.0",
+  "trained_at": "2026-...",
+  "threshold": 0.5,
+  "roc_auc": 0.8858,
+  "recall": 0.8,
+  "features": ["..."],
+  "author": "Jhoselyn Miluska Pajuelo"
+}
+```
+
+### Running the API locally
+
+```bash
+uv run uvicorn api:app --reload --port 7860
+```
+
+### Running with Docker
+
+```bash
+docker build -t heart-disease-api .
+docker run -p 7860:7860 heart-disease-api
+```
 
 ---
 

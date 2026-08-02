@@ -1,10 +1,15 @@
 import json
 import pickle
 from pathlib import Path
-
+import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
+import shap
+
 
 # Serialization
+
+
 
 def save_json(obj, path):
     """
@@ -147,12 +152,41 @@ def save_figure(fig, path, dpi=150):
     fig.savefig(path, dpi=dpi, bbox_inches="tight")
     print(f"figure saves in {path}")
 
-def save_pickle(obj, path):
+
+def _explain_patient(X_in, explainer) -> list:
     """
-    Save any object to disk as a .pkl file.
+    SHAP explanation for a single patient (one row).
+
+    Sign convention: positive shap_value pushes toward disease (class 1),
+    negative pushes toward healthy (class 0).
+
+    explainer.shap_values() shape depends on BOTH the shap version and the
+    model class, so normalize all cases to 1D array with n_features:
+
+      - RandomForestClassifier (sklearn), shap>=0.45
+        → ndarray shape (n_samples, n_features, n_classes) →  [0, :, 1]
+    Arg: 
+        X_in: dataframe impute
+    
+    Returns: 
+        contributions: list of features and their contributions
     """
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "wb") as f:
-        pickle.dump(obj, f)
-    print(f"  ✔ Saved  → {path}")
+
+    raw = explainer.shap_values(X_in)
+
+    if isinstance(raw,list):
+        row = np.asarray(raw[1][0])
+    else:
+        raw = np.asarray(raw)
+        if raw.ndim == 3:
+            row = raw[0, :, 1]
+        else:
+            row = raw[0]
+    contributions = [
+        {"feature": feature, "shap_value": round(float(value), 4)}
+        for feature, value in zip(X_in.columns, row)
+    ]
+    contributions.sort(key=lambda item: abs(item["shap_value"]), reverse=True)
+    return contributions
+
+

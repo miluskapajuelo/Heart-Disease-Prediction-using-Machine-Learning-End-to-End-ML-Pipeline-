@@ -1,7 +1,7 @@
 {
   "model_name": "random_forest",
-  "model_version": "07.09.26",
-  "trained_at": "2026-07-10T00:35:32.526716+00:00",
+  "model_version": "08.01.26",
+  "trained_at": "2026-08-01T17:12:59.446463+00:00",
   "decision_threshold": 0.5,
   "features": [
     "sex",
@@ -40,8 +40,7 @@
     }
   ],
   "libraries": {
-    "scikit-learn": "sklearn.1.9.0",
-    "xgboost": "xgboost.3.3.0"
+    "scikit-learn": "sklearn.1.9.0"
   },
   "author": "Jhoselyn Pajuelo Villanueva",
   "probability": [
@@ -58,11 +57,11 @@
     {
       "level": "MODERATE",
       "label": "Moderate Risk",
-      "max": 0.5,
       "recommendations": [
         "Recommend clinical correlation and further evaluation as indicated.",
         "Consider referral to Cardiology if risk factors persist or worsen."
-      ]
+      ],
+      "max": 0.5
     },
     {
       "level": "HIGH",

@@ -1,0 +1,21 @@
+
+risk_bands:
+  - level: LOW
+    label: Low Risk
+    max: 0.30
+    recommendations:
+      - "Continue routine cardiovascular health maintenance and periodic screening."
+      - "Reinforce heart-healthy lifestyle measures (diet, activity, smoking cessation)."
+      - "Monitor blood pressure and lipid profile at routine follow-up visits."
+  - level: MODERATE
+    label: Moderate Risk
+    recommendations:
+      - "Recommend clinical correlation and further evaluation as indicated."
+      - "Consider referral to Cardiology if risk factors persist or worsen."
+  - level: HIGH
+    label: High Risk
+    max: 1.0
+    recommendations:
+      - "Recommend prompt clinical evaluation."
+      - "Consider referral to Cardiology."
+      - "Correlate with ECG, biomarkers, echocardiography or stress testing as indicated."
